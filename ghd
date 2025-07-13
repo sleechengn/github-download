@@ -1,0 +1,20 @@
+#!/usr/bin/bash
+REP=$1
+#curl -s https://api.github.com/repos/$REP/releases/latest | grep browser_download_url | cut -d'"' -f4|xargs -i aria2c -x 10 -j 10 -k 1M {}
+CMD="curl https://api.github.com/repos/$REP/releases/latest | grep browser_download_url | cut -d'\"' -f4"
+LINES=$(eval $CMD)
+#echo $LINES
+for line in $LINES; do
+        filen=$(echo $line|grep -o '[^\/]*$')
+        if [ -e $filen ]; then
+                        if [ ! -e $filen.aria2 ]; then
+                                        echo $filen.aria2 not exists is complete
+                                else
+                                        rm -rf $filen $filen.aria2
+                                        aria2c -x 10 -j 10 -k 1M $line -o $filen
+                        fi
+                else
+                        aria2c -x 10 -j 10 -k 1M $line -o $filen
+        fi
+done
+
